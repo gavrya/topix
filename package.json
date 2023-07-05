@@ -9,8 +9,7 @@
   "license": "MIT",
   "scripts": {
     "clean": "rimraf build",
-    "build": "tsc",
-    "postinstall": "yarn clean && yarn build"
+    "build": "yarn clean && tsc"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.2",
