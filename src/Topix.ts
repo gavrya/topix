@@ -1,67 +1,69 @@
-import EventEmitter from 'events';
-import type {
-  TopixProps,
-  Module,
-  Action,
-  AnyAction,
-  State,
-  Topic,
-} from './types';
+import EventEmitter from 'eventemitter3';
+import { hasOwnProp } from './utils';
+import type { Module, Action, AnyAction, State, Topic, Emit } from './types';
 
 class Topix<A extends Action = AnyAction, S extends State = State> {
-  private emitter: EventEmitter;
-  private readonly emit: (action: A) => void;
   private readonly state: S;
+  private readonly emitter: EventEmitter;
+  private readonly emit: Emit;
 
-  constructor({ modules }: TopixProps<A, S>) {
+  constructor() {
+    this.state = <S>{};
     this.emitter = new EventEmitter();
+    this.emit = (action) => this.emitter.emit(action.type, action);
+  }
 
-    const emit = (this.emit = (action: A) => {
+  registerModules(modules: Module[]): void {
+    const state = this.state;
+
+    const emit: Emit = (action) => {
       console.log('Emitting an action:', action);
-      this.emitter.emit(action.type, action);
-    });
+      this.emit(action);
+    };
 
-    const state = (this.state = <S>{});
-
-    const registerTopic = (topic: Topic<A, S>) => {
+    const registerTopic = (topic: Topic) => {
       const { id, inputActionTypes } = topic;
-
       console.log(`Registering topic with id "${id}"`);
 
-      inputActionTypes.forEach((actionType) => {
-        this.emitter.addListener(actionType, (action: A) =>
+      for (const actionType of inputActionTypes) {
+        this.emitter.on(actionType, (action: AnyAction) =>
           topic.handler({ action, state, emit }),
         );
         console.log(`Added action listener for "${actionType}" action type`);
-      });
+      }
 
       console.log(`Topic with id "${id}" has been registered`);
     };
 
-    const registerModule = (module: Module<A, S>) => {
+    const registerModule = (module: Module) => {
       const { namespace, initialState, topics } = module;
-
       console.log(`Registering module with namespace "${namespace}"`);
 
-      if (Object.prototype.hasOwnProperty.call(state, namespace)) {
+      if (hasOwnProp(state, namespace)) {
         throw Error(`Module with namespace "${namespace}" is already exists`);
       }
 
+      // @ts-ignore
       state[namespace] = initialState;
-      topics.forEach(registerTopic);
+
+      for (const topic of topics) {
+        registerTopic(topic);
+      }
 
       console.log(`Module with namespace "${namespace}" has been registered`);
     };
 
-    modules.forEach(registerModule);
+    for (const module of modules) {
+      registerModule(module);
+    }
   }
 
-  emitAction(action: A) {
-    this.emit(action);
-  }
-
-  getState() {
+  getState(): S {
     return this.state;
+  }
+
+  emitAction(action: A): void {
+    this.emit(action);
   }
 }
 

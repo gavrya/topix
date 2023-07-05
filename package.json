@@ -1,6 +1,6 @@
 {
   "name": "topix",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Topix - event-driven application framework",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -8,12 +8,18 @@
   "author": "Oleksandr <gavrya@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc"
+    "clean": "rimraf build",
+    "build": "yarn clean && tsc",
+    "postinstall": "yarn build"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.2",
     "@types/node": "^18.15.11",
     "prettier": "^2.8.7",
+    "rimraf": "^5.0.1",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.1"
   }
 }
