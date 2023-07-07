@@ -1,9 +1,21 @@
 import type { Action, AnyObject } from './types';
 
-const ofType = (action: Action, ...types: string[]): boolean =>
-  types.includes(action.type);
+const getActionClass = (action: Action): string => {
+  return action.type.split('/')[1];
+};
 
-const hasOwnProp = (object: AnyObject, prop: string): boolean =>
-  Object.prototype.hasOwnProperty.call(object, prop);
+const ofClass = (action: Action, ...actionClasses: string[]): boolean => {
+  const actionClass = getActionClass(action);
 
-export { ofType, hasOwnProp };
+  return actionClasses.includes(actionClass);
+};
+
+const ofType = (action: Action, ...actionTypes: string[]): boolean => {
+  return actionTypes.includes(action.type);
+};
+
+const hasOwnProp = (object: AnyObject, prop: string): boolean => {
+  return Object.prototype.hasOwnProperty.call(object, prop);
+};
+
+export { getActionClass, ofClass, ofType, hasOwnProp };

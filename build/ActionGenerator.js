@@ -6,12 +6,19 @@ class ActionGenerator {
         this.namespace = namespace;
     }
     createEventAction(key) {
-        const actionType = `${this.namespace}/event/${key}`;
+        const type = `${this.namespace}/event/${key}`;
+        return this.createAction(type);
+    }
+    createCommandAction(key) {
+        const type = `${this.namespace}/command/${key}`;
+        return this.createAction(type);
+    }
+    createAction(type) {
         const actionCreator = (payload) => ({
-            type: actionType,
+            type,
             payload,
         });
-        return [actionType, actionCreator];
+        return [type, actionCreator];
     }
 }
 exports.ActionGenerator = ActionGenerator;

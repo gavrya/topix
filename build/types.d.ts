@@ -12,8 +12,8 @@ interface AnyAction extends Action {
 interface ActionTypes {
     [key: string]: string;
 }
-interface ActionCreator<A, P extends any[] = any[]> {
-    (...args: P): A;
+interface ActionCreator<A, P> {
+    (payload: P): A;
 }
 interface ActionCreators<A = any, P extends any[] = any[]> {
     [key: string]: ActionCreator<A, P>;
@@ -46,4 +46,4 @@ interface Module<N extends string = string, A extends Action = AnyAction, S exte
     actionTypes: AT;
     actionCreators: AC;
 }
-export type { AnyObject, State, Action, AnyAction, ActionTypes, ActionCreators, Emit, TopicHandlerProps, TopicHandler, Topic, ObjectValuesUnion, ActionsFromActionCreators, Module, };
+export type { AnyObject, State, Action, AnyAction, ActionTypes, ActionCreator, ActionCreators, Emit, TopicHandlerProps, TopicHandler, Topic, ObjectValuesUnion, ActionsFromActionCreators, Module, };
