@@ -4,10 +4,10 @@ interface AnyObject {
 
 type State = Record<any, any>;
 
-type Action<T extends string = any, P = any> = {
+interface Action<T extends string = any, P = any> {
   type: T;
   payload: P;
-};
+}
 
 interface ActionTypes {
   [key: string]: string;
