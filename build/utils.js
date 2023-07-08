@@ -1,15 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hasOwnProp = exports.ofType = exports.ofClass = exports.getActionClass = void 0;
-const getActionClass = (action) => {
+exports.hasOwnProp = exports.ofType = exports.ofCategory = exports.getActionCategory = void 0;
+const getActionCategory = (action) => {
     return action.type.split('/')[1];
 };
-exports.getActionClass = getActionClass;
-const ofClass = (action, ...actionClasses) => {
-    const actionClass = getActionClass(action);
-    return actionClasses.includes(actionClass);
+exports.getActionCategory = getActionCategory;
+const ofCategory = (action, ...actionCategories) => {
+    const actionCategory = getActionCategory(action);
+    return actionCategories.includes(actionCategory);
 };
-exports.ofClass = ofClass;
+exports.ofCategory = ofCategory;
 const ofType = (action, ...actionTypes) => {
     return actionTypes.includes(action.type);
 };
