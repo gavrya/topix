@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Topix = void 0;
 const eventemitter3_1 = __importDefault(require("eventemitter3"));
 const utils_1 = require("./utils");
+const actions_1 = require("./actions");
 class Topix {
     constructor() {
         this.state = {};
@@ -43,6 +44,7 @@ class Topix {
         for (const module of modules) {
             registerModule(module);
         }
+        emit(actions_1.actionCreators.startCommand());
     }
     getState() {
         return this.state;

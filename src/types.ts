@@ -17,7 +17,7 @@ interface ActionCreator<A, P> {
   (payload: P): A;
 }
 
-interface ActionCreators<A = any, P extends any[] = any[]> {
+interface ActionCreators<A = any, P = any> {
   [key: string]: ActionCreator<A, P>;
 }
 

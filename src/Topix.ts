@@ -1,5 +1,6 @@
 import EventEmitter from 'eventemitter3';
 import { hasOwnProp } from './utils';
+import { actionCreators } from './actions';
 import type { Module, Action, State, Topic, Emit } from './types';
 
 class Topix<A extends Action = Action, S extends State = State> {
@@ -56,6 +57,8 @@ class Topix<A extends Action = Action, S extends State = State> {
     for (const module of modules) {
       registerModule(module);
     }
+
+    emit(actionCreators.startCommand());
   }
 
   getState(): S {
