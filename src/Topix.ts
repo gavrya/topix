@@ -1,8 +1,8 @@
 import EventEmitter from 'eventemitter3';
 import { hasOwnProp } from './utils';
-import type { Module, Action, AnyAction, State, Topic, Emit } from './types';
+import type { Module, Action, State, Topic, Emit } from './types';
 
-class Topix<A extends Action = AnyAction, S extends State = State> {
+class Topix<A extends Action = Action, S extends State = State> {
   private readonly state: S;
   private readonly emitter: EventEmitter;
   private readonly emit: Emit;
@@ -26,7 +26,7 @@ class Topix<A extends Action = AnyAction, S extends State = State> {
       console.log(`Registering topic with id "${id}"`);
 
       for (const actionType of inputActionTypes) {
-        this.emitter.on(actionType, (action: AnyAction) =>
+        this.emitter.on(actionType, (action: Action) =>
           topic.handler({ action, state, emit }),
         );
         console.log(`Added action listener for "${actionType}" action type`);

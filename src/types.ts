@@ -9,10 +9,6 @@ type Action<T extends string = any, P = any> = {
   payload: P;
 };
 
-interface AnyAction extends Action {
-  [extraProps: string]: any;
-}
-
 interface ActionTypes {
   [key: string]: string;
 }
@@ -31,12 +27,12 @@ type ActionsFromActionCreators<T extends ActionCreators> = {
   [K in keyof T]: ReturnType<T[K]>;
 };
 
-interface Emit<A extends Action = AnyAction> {
+interface Emit<A extends Action = Action> {
   (action: A, ...extraArgs: any[]): void;
 }
 
 interface TopicHandlerProps<
-  A extends Action = AnyAction,
+  A extends Action = Action,
   S extends State = State,
 > {
   action: A;
@@ -44,11 +40,11 @@ interface TopicHandlerProps<
   emit: Emit<A>;
 }
 
-interface TopicHandler<A extends Action = AnyAction, S extends State = State> {
+interface TopicHandler<A extends Action = Action, S extends State = State> {
   (props: TopicHandlerProps<A, S>): void | Promise<void>;
 }
 
-interface Topic<A extends Action = AnyAction, S extends State = State> {
+interface Topic<A extends Action = Action, S extends State = State> {
   id: string;
   inputActionTypes: string[];
   outputActionTypes: string[];
@@ -57,7 +53,7 @@ interface Topic<A extends Action = AnyAction, S extends State = State> {
 
 interface Module<
   N extends string = string,
-  A extends Action = AnyAction,
+  A extends Action = Action,
   S extends State = State,
   AT extends ActionTypes = ActionTypes,
   AC extends ActionCreators<A> = ActionCreators<A>,
@@ -73,7 +69,6 @@ export type {
   AnyObject,
   State,
   Action,
-  AnyAction,
   ActionTypes,
   ActionCreator,
   ActionCreators,
