@@ -2,7 +2,7 @@ interface AnyObject {
   [props: string]: any;
 }
 
-type State = Record<string, any>;
+type State = Record<any, any>;
 
 type Action<T extends string = any, P = any> = {
   type: T;
@@ -37,18 +37,18 @@ interface Emit<A extends Action = AnyAction> {
 
 interface TopicHandlerProps<
   A extends Action = AnyAction,
-  S extends State = any,
+  S extends State = State,
 > {
   action: A;
   state: S;
   emit: Emit<A>;
 }
 
-interface TopicHandler<A extends Action = AnyAction, S extends State = any> {
+interface TopicHandler<A extends Action = AnyAction, S extends State = State> {
   (props: TopicHandlerProps<A, S>): void | Promise<void>;
 }
 
-interface Topic<A extends Action = AnyAction, S extends State = any> {
+interface Topic<A extends Action = AnyAction, S extends State = State> {
   id: string;
   inputActionTypes: string[];
   outputActionTypes: string[];
@@ -58,7 +58,7 @@ interface Topic<A extends Action = AnyAction, S extends State = any> {
 interface Module<
   N extends string = string,
   A extends Action = AnyAction,
-  S extends State = any,
+  S extends State = State,
   AT extends ActionTypes = ActionTypes,
   AC extends ActionCreators<A> = ActionCreators<A>,
 > {
