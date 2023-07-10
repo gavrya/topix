@@ -20,7 +20,7 @@ type ActionsFromActionCreators<T extends ActionCreators> = {
     [K in keyof T]: ReturnType<T[K]>;
 };
 interface Emit<A extends Action = Action> {
-    (action: A, ...extraArgs: any[]): void;
+    (action: A): void;
 }
 interface TopicHandlerProps<A extends Action = Action, S extends State = State> {
     action: A;
@@ -43,4 +43,14 @@ interface Module<N extends string = string, A extends Action = Action, S extends
     actionTypes: AT;
     actionCreators: AC;
 }
-export type { AnyObject, State, Action, ActionTypes, ActionCreator, ActionCreators, Emit, TopicHandlerProps, TopicHandler, Topic, ObjectValuesUnion, ActionsFromActionCreators, Module, };
+interface Hook {
+    init: () => void;
+    destroy: () => void;
+    onModulesRegistered: (modules: Module[]) => void;
+    onActionEmitted: (action: Action, state: State) => void;
+}
+interface TopixProps {
+    modules: Module[];
+    hooks?: Hook[];
+}
+export type { AnyObject, State, Action, ActionTypes, ActionCreator, ActionCreators, Emit, TopicHandlerProps, TopicHandler, Topic, ObjectValuesUnion, ActionsFromActionCreators, Module, Hook, TopixProps, };

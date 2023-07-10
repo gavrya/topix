@@ -28,7 +28,7 @@ type ActionsFromActionCreators<T extends ActionCreators> = {
 };
 
 interface Emit<A extends Action = Action> {
-  (action: A, ...extraArgs: any[]): void;
+  (action: A): void;
 }
 
 interface TopicHandlerProps<
@@ -65,6 +65,18 @@ interface Module<
   actionCreators: AC;
 }
 
+interface Hook {
+  init: () => void;
+  destroy: () => void;
+  onModulesRegistered: (modules: Module[]) => void;
+  onActionEmitted: (action: Action, state: State) => void;
+}
+
+interface TopixProps {
+  modules: Module[];
+  hooks?: Hook[];
+}
+
 export type {
   AnyObject,
   State,
@@ -79,4 +91,6 @@ export type {
   ObjectValuesUnion,
   ActionsFromActionCreators,
   Module,
+  Hook,
+  TopixProps,
 };

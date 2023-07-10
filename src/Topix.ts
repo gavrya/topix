@@ -1,44 +1,100 @@
 import EventEmitter from 'eventemitter3';
 import { hasOwnProp } from './utils';
-import { actionCreators } from './actions';
-import type { Module, Action, State, Topic, Emit } from './types';
+import type {
+  Module,
+  Action,
+  State,
+  Topic,
+  Emit,
+  Hook,
+  TopixProps,
+} from './types';
 
 class Topix<A extends Action = Action, S extends State = State> {
-  private readonly state: S;
-  private readonly emitter: EventEmitter;
+  private isStarted: boolean = false;
+  private isDestroyed: boolean = false;
+  private state: S;
+  private hooks: Hook[] = [];
+  private modules: Module[] = [];
+  private emitter: EventEmitter;
   private readonly emit: Emit;
 
-  constructor() {
+  constructor({ modules, hooks = [] }: TopixProps) {
     this.state = <S>{};
+    this.hooks.push(...hooks);
+    this.modules.push(...modules);
     this.emitter = new EventEmitter();
-    this.emit = (action) => this.emitter.emit(action.type, action);
+    this.emit = (action) => {
+      this.emitter.emit(action.type, action);
+      this.notifyOnActionEmitted(action, this.state);
+    };
   }
 
-  registerModules(modules: Module[]): void {
+  start(): void {
+    if (this.isStarted) {
+      throw Error('Application already started');
+    }
+
+    if (this.isDestroyed) {
+      throw Error('Unable to start destroyed application');
+    }
+
+    this.registerHooks();
+    this.registerModules();
+    this.isStarted = true;
+  }
+
+  destroy(): void {
+    if (this.isDestroyed) {
+      throw Error('Unable to destroy already destroyed application');
+    }
+
+    this.unregisterHooks();
+    this.unregisterModules();
+    this.isDestroyed = true;
+  }
+
+  getState(): S {
+    return this.state;
+  }
+
+  emitAction(action: A): void {
+    this.emit(action);
+  }
+
+  private registerHooks() {
+    for (const hook of this.hooks) {
+      hook.init();
+    }
+  }
+
+  private unregisterHooks() {
+    for (const hook of this.hooks) {
+      hook.destroy();
+    }
+
+    this.hooks = [];
+  }
+
+  private registerModules(): void {
     const state = this.state;
 
     const emit: Emit = (action) => {
-      console.log('Emitting an action:', action);
       this.emit(action);
     };
 
     const registerTopic = (topic: Topic) => {
-      const { id, inputActionTypes } = topic;
-      console.log(`Registering topic with id "${id}"`);
+      const { inputActionTypes } = topic;
 
       for (const actionType of inputActionTypes) {
-        this.emitter.on(actionType, (action: Action) =>
-          topic.handler({ action, state, emit }),
-        );
-        console.log(`Added action listener for "${actionType}" action type`);
+        this.emitter.on(actionType, (action: Action) => {
+          topic.handler({ action, state, emit });
+        });
       }
-
-      console.log(`Topic with id "${id}" has been registered`);
     };
 
     const registerModule = (module: Module) => {
       const { namespace, initialState, topics } = module;
-      console.log(`Registering module with namespace "${namespace}"`);
 
       if (hasOwnProp(state, namespace)) {
         throw Error(`Module with namespace "${namespace}" is already exists`);
@@ -50,23 +106,31 @@ class Topix<A extends Action = Action, S extends State = State> {
       for (const topic of topics) {
         registerTopic(topic);
       }
-
-      console.log(`Module with namespace "${namespace}" has been registered`);
     };
 
-    for (const module of modules) {
+    for (const module of this.modules) {
       registerModule(module);
     }
 
-    emit(actionCreators.startCommand());
+    this.notifyOnModulesRegistered(this.modules);
   }
 
-  getState(): S {
-    return this.state;
+  private unregisterModules(): void {
+    this.emitter.removeAllListeners();
+    this.modules = [];
+    this.state = <S>{};
   }
 
-  emitAction(action: A): void {
-    this.emit(action);
+  private notifyOnModulesRegistered(modules: Module[]): void {
+    for (const hook of this.hooks) {
+      hook.onModulesRegistered(modules);
+    }
+  }
+
+  private notifyOnActionEmitted(action: Action, state: State): void {
+    for (const hook of this.hooks) {
+      hook.onActionEmitted(action, state);
+    }
   }
 }
 

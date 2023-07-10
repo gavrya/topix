@@ -6,31 +6,72 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Topix = void 0;
 const eventemitter3_1 = __importDefault(require("eventemitter3"));
 const utils_1 = require("./utils");
-const actions_1 = require("./actions");
 class Topix {
-    constructor() {
+    constructor({ modules, hooks = [] }) {
+        this.isStarted = false;
+        this.isDestroyed = false;
+        this.hooks = [];
+        this.modules = [];
         this.state = {};
+        this.hooks.push(...hooks);
+        this.modules.push(...modules);
         this.emitter = new eventemitter3_1.default();
-        this.emit = (action) => this.emitter.emit(action.type, action);
+        this.emit = (action) => {
+            this.emitter.emit(action.type, action);
+            this.notifyOnActionEmitted(action, this.state);
+        };
     }
-    registerModules(modules) {
+    start() {
+        if (this.isStarted) {
+            throw Error('Application already started');
+        }
+        if (this.isDestroyed) {
+            throw Error('Unable to start destroyed application');
+        }
+        this.registerHooks();
+        this.registerModules();
+        this.isStarted = true;
+    }
+    destroy() {
+        if (this.isDestroyed) {
+            throw Error('Unable to destroy already destroyed application');
+        }
+        this.unregisterHooks();
+        this.unregisterModules();
+        this.isDestroyed = true;
+    }
+    getState() {
+        return this.state;
+    }
+    emitAction(action) {
+        this.emit(action);
+    }
+    registerHooks() {
+        for (const hook of this.hooks) {
+            hook.init();
+        }
+    }
+    unregisterHooks() {
+        for (const hook of this.hooks) {
+            hook.destroy();
+        }
+        this.hooks = [];
+    }
+    registerModules() {
         const state = this.state;
         const emit = (action) => {
-            console.log('Emitting an action:', action);
             this.emit(action);
         };
         const registerTopic = (topic) => {
-            const { id, inputActionTypes } = topic;
-            console.log(`Registering topic with id "${id}"`);
+            const { inputActionTypes } = topic;
             for (const actionType of inputActionTypes) {
-                this.emitter.on(actionType, (action) => topic.handler({ action, state, emit }));
-                console.log(`Added action listener for "${actionType}" action type`);
+                this.emitter.on(actionType, (action) => {
+                    topic.handler({ action, state, emit });
+                });
             }
-            console.log(`Topic with id "${id}" has been registered`);
         };
         const registerModule = (module) => {
             const { namespace, initialState, topics } = module;
-            console.log(`Registering module with namespace "${namespace}"`);
             if ((0, utils_1.hasOwnProp)(state, namespace)) {
                 throw Error(`Module with namespace "${namespace}" is already exists`);
             }
@@ -39,18 +80,26 @@ class Topix {
             for (const topic of topics) {
                 registerTopic(topic);
             }
-            console.log(`Module with namespace "${namespace}" has been registered`);
         };
-        for (const module of modules) {
+        for (const module of this.modules) {
             registerModule(module);
         }
-        emit(actions_1.actionCreators.startCommand());
+        this.notifyOnModulesRegistered(this.modules);
     }
-    getState() {
-        return this.state;
+    unregisterModules() {
+        this.emitter.removeAllListeners();
+        this.modules = [];
+        this.state = {};
     }
-    emitAction(action) {
-        this.emit(action);
+    notifyOnModulesRegistered(modules) {
+        for (const hook of this.hooks) {
+            hook.onModulesRegistered(modules);
+        }
+    }
+    notifyOnActionEmitted(action, state) {
+        for (const hook of this.hooks) {
+            hook.onActionEmitted(action, state);
+        }
     }
 }
 exports.Topix = Topix;
