@@ -29,7 +29,7 @@ class ModuleService<
 
   init(): void {
     const state = this.state;
-    const emit = this.emitAction as Emit;
+    const emit = this.emitAction.bind(this) as Emit;
 
     const registerTopic = (topic: Topic) => {
       const { inputActionTypes } = topic;

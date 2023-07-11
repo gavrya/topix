@@ -24,7 +24,7 @@ class ModuleService extends eventemitter3_1.default {
     }
     init() {
         const state = this.state;
-        const emit = this.emitAction;
+        const emit = this.emitAction.bind(this);
         const registerTopic = (topic) => {
             const { inputActionTypes } = topic;
             for (const actionType of inputActionTypes) {
