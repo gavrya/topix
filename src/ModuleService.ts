@@ -23,17 +23,15 @@ class ModuleService<
   }
 
   emitAction(action: A): void {
-    this.actionEmitter.emit(action.type, action);
-    this.emit(HookEvents.ActionEmitted, { action, state: this.state });
+    setTimeout(() => {
+      this.actionEmitter.emit(action.type, action);
+      this.emit(HookEvents.ActionEmitted, { action, state: this.state });
+    }, 0);
   }
 
   init(): void {
     const state = this.state;
-    const emit = (action: Action) => {
-      setTimeout(() => {
-        this.emitAction(action as A);
-      }, 0);
-    };
+    const emit = this.emitAction.bind(this) as Emit;
 
     const registerTopic = (topic: Topic) => {
       const { inputActionTypes } = topic;
