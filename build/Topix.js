@@ -19,8 +19,11 @@ class Topix {
         }
         this.hookService.init();
         this.moduleService.init();
-        this.moduleService.on('*', (eventName, payload) => {
-            this.hookService.emit(eventName, payload);
+        this.moduleService.on(HookService_1.HookEvents.ModulesRegistered, (event) => {
+            this.hookService.emit(HookService_1.HookEvents.ModulesRegistered, event);
+        });
+        this.moduleService.on(HookService_1.HookEvents.ActionEmitted, (event) => {
+            this.hookService.emit(HookService_1.HookEvents.ActionEmitted, event);
         });
         this.isStarted = true;
     }

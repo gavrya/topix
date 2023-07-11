@@ -1,6 +1,6 @@
-import { HookService } from './HookService';
+import { HookService, HookEvents } from './HookService';
 import { ModuleService } from './ModuleService';
-import type { Action, State, TopixProps } from './types';
+import type { Action, State, TopixProps, Module } from './types';
 
 class Topix<A extends Action = Action, S extends State = State> {
   private isStarted: boolean = false;
@@ -24,9 +24,20 @@ class Topix<A extends Action = Action, S extends State = State> {
 
     this.hookService.init();
     this.moduleService.init();
-    this.moduleService.on('*', (eventName, payload) => {
-      this.hookService.emit(eventName, payload);
-    });
+
+    this.moduleService.on(
+      HookEvents.ModulesRegistered,
+      (event: { modules: Module[] }) => {
+        this.hookService.emit(HookEvents.ModulesRegistered, event);
+      },
+    );
+    this.moduleService.on(
+      HookEvents.ActionEmitted,
+      (event: { action: Action; state: State }) => {
+        this.hookService.emit(HookEvents.ActionEmitted, event);
+      },
+    );
+
     this.isStarted = true;
   }
 
