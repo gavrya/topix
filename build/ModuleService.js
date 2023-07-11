@@ -20,16 +20,20 @@ class ModuleService extends eventemitter3_1.default {
     }
     emitAction(action) {
         this.actionEmitter.emit(action.type, action);
+        this.emit(HookService_1.HookEvents.ActionEmitted, { action, state: this.state });
     }
     init() {
         const state = this.state;
-        const emit = this.emitAction.bind(this);
+        const emit = (action) => {
+            setTimeout(() => {
+                this.emitAction(action);
+            }, 0);
+        };
         const registerTopic = (topic) => {
             const { inputActionTypes } = topic;
             for (const actionType of inputActionTypes) {
                 this.actionEmitter.on(actionType, (action) => {
                     topic.handler({ action, state, emit });
-                    this.emit(HookService_1.HookEvents.ActionEmitted, { action, state: this.state });
                 });
             }
         };
