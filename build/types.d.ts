@@ -53,4 +53,9 @@ interface TopixProps {
     modules: Module[];
     hooks?: Hook[];
 }
-export type { AnyObject, State, Action, ActionTypes, ActionCreator, ActionCreators, Emit, TopicHandlerProps, TopicHandler, Topic, ObjectValuesUnion, ActionsFromActionCreators, Module, Hook, TopixProps, };
+type ActionSegments = {
+    moduleNamespace: string;
+    actionCategory: string;
+    actionName: string;
+};
+export type { AnyObject, State, Action, ActionTypes, ActionCreator, ActionCreators, Emit, TopicHandlerProps, TopicHandler, Topic, ObjectValuesUnion, ActionsFromActionCreators, Module, Hook, TopixProps, ActionSegments, };

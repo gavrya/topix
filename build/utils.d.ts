@@ -1,6 +1,5 @@
-import type { Action, AnyObject } from './types';
-declare const getActionCategory: (action: Action) => string;
-declare const ofCategory: (action: Action, ...actionCategories: string[]) => boolean;
+import type { Action, AnyObject, ActionSegments } from './types';
+declare const getActionSegments: (actionType: string) => ActionSegments;
 declare const ofType: (action: Action, ...actionTypes: string[]) => boolean;
 declare const hasOwnProp: (object: AnyObject, prop: string) => boolean;
-export { getActionCategory, ofCategory, ofType, hasOwnProp };
+export { getActionSegments, ofType, hasOwnProp };

@@ -77,6 +77,12 @@ interface TopixProps {
   hooks?: Hook[];
 }
 
+type ActionSegments = {
+  moduleNamespace: string;
+  actionCategory: string;
+  actionName: string;
+};
+
 export type {
   AnyObject,
   State,
@@ -93,4 +99,5 @@ export type {
   Module,
   Hook,
   TopixProps,
+  ActionSegments,
 };

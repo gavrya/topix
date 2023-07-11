@@ -1,13 +1,9 @@
-import type { Action, AnyObject } from './types';
+import type { Action, AnyObject, ActionSegments } from './types';
 
-const getActionCategory = (action: Action): string => {
-  return action.type.split('/')[1];
-};
+const getActionSegments = (actionType: string): ActionSegments => {
+  const [moduleNamespace, actionCategory, actionName] = actionType.split('/');
 
-const ofCategory = (action: Action, ...actionCategories: string[]): boolean => {
-  const actionCategory = getActionCategory(action);
-
-  return actionCategories.includes(actionCategory);
+  return { moduleNamespace, actionCategory, actionName };
 };
 
 const ofType = (action: Action, ...actionTypes: string[]): boolean => {
@@ -18,4 +14,4 @@ const hasOwnProp = (object: AnyObject, prop: string): boolean => {
   return Object.prototype.hasOwnProperty.call(object, prop);
 };
 
-export { getActionCategory, ofCategory, ofType, hasOwnProp };
+export { getActionSegments, ofType, hasOwnProp };

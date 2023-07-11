@@ -1,105 +1,42 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Topix = void 0;
-const eventemitter3_1 = __importDefault(require("eventemitter3"));
-const utils_1 = require("./utils");
+const HookService_1 = require("./HookService");
+const ModuleService_1 = require("./ModuleService");
 class Topix {
     constructor({ modules, hooks = [] }) {
         this.isStarted = false;
         this.isDestroyed = false;
-        this.hooks = [];
-        this.modules = [];
-        this.state = {};
-        this.hooks.push(...hooks);
-        this.modules.push(...modules);
-        this.emitter = new eventemitter3_1.default();
-        this.emit = (action) => {
-            this.emitter.emit(action.type, action);
-            this.notifyOnActionEmitted(action, this.state);
-        };
+        this.hookService = new HookService_1.HookService(hooks);
+        this.moduleService = new ModuleService_1.ModuleService(modules);
     }
     start() {
         if (this.isStarted) {
-            throw Error('Application already started');
+            throw Error('Topix application already started');
         }
         if (this.isDestroyed) {
-            throw Error('Unable to start destroyed application');
+            throw Error('Unable to start destroyed Topix application');
         }
-        this.registerHooks();
-        this.registerModules();
+        this.hookService.init();
+        this.moduleService.init();
+        this.moduleService.on('*', (eventName, payload) => {
+            this.hookService.emit(eventName, payload);
+        });
         this.isStarted = true;
     }
     destroy() {
         if (this.isDestroyed) {
-            throw Error('Unable to destroy already destroyed application');
+            throw Error('Unable to destroy already destroyed Topix application');
         }
-        this.unregisterHooks();
-        this.unregisterModules();
+        this.hookService.destroy();
+        this.moduleService.destroy();
         this.isDestroyed = true;
     }
     getState() {
-        return this.state;
+        return this.moduleService.getState();
     }
     emitAction(action) {
-        this.emit(action);
-    }
-    registerHooks() {
-        for (const hook of this.hooks) {
-            hook.init();
-        }
-    }
-    unregisterHooks() {
-        for (const hook of this.hooks) {
-            hook.destroy();
-        }
-        this.hooks = [];
-    }
-    registerModules() {
-        const state = this.state;
-        const emit = (action) => {
-            this.emit(action);
-        };
-        const registerTopic = (topic) => {
-            const { inputActionTypes } = topic;
-            for (const actionType of inputActionTypes) {
-                this.emitter.on(actionType, (action) => {
-                    topic.handler({ action, state, emit });
-                });
-            }
-        };
-        const registerModule = (module) => {
-            const { namespace, initialState, topics } = module;
-            if ((0, utils_1.hasOwnProp)(state, namespace)) {
-                throw Error(`Module with namespace "${namespace}" is already exists`);
-            }
-            // @ts-ignore
-            state[namespace] = initialState;
-            for (const topic of topics) {
-                registerTopic(topic);
-            }
-        };
-        for (const module of this.modules) {
-            registerModule(module);
-        }
-        this.notifyOnModulesRegistered(this.modules);
-    }
-    unregisterModules() {
-        this.emitter.removeAllListeners();
-        this.modules = [];
-        this.state = {};
-    }
-    notifyOnModulesRegistered(modules) {
-        for (const hook of this.hooks) {
-            hook.onModulesRegistered(modules);
-        }
-    }
-    notifyOnActionEmitted(action, state) {
-        for (const hook of this.hooks) {
-            hook.onActionEmitted(action, state);
-        }
+        this.moduleService.emitAction(action);
     }
 }
 exports.Topix = Topix;
