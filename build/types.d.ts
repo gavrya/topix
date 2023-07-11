@@ -22,21 +22,21 @@ type ActionsFromActionCreators<T extends ActionCreators> = {
 interface Emit<A extends Action = Action> {
     (action: A): void;
 }
-interface TopicHandlerProps<A extends Action = Action, S extends State = State> {
+interface TopicHandlerProps<A extends Action = Action, S extends State = any> {
     action: A;
     state: S;
     emit: Emit<A>;
 }
-interface TopicHandler<A extends Action = Action, S extends State = State> {
+interface TopicHandler<A extends Action = Action, S extends State = any> {
     (props: TopicHandlerProps<A, S>): void | Promise<void>;
 }
-interface Topic<A extends Action = Action, S extends State = State> {
+interface Topic<A extends Action = Action, S extends State = any> {
     id: string;
     inputActionTypes: string[];
     outputActionTypes: string[];
     handler: TopicHandler<A, S>;
 }
-interface Module<N extends string = string, A extends Action = Action, S extends State = State, AT extends ActionTypes = ActionTypes, AC extends ActionCreators<A> = ActionCreators<A>> {
+interface Module<N extends string = string, A extends Action = Action, S extends State = any, AT extends ActionTypes = ActionTypes, AC extends ActionCreators<A> = ActionCreators<A>> {
     namespace: N;
     initialState: S[N];
     topics: Topic<A, S>[];

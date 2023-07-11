@@ -31,20 +31,17 @@ interface Emit<A extends Action = Action> {
   (action: A): void;
 }
 
-interface TopicHandlerProps<
-  A extends Action = Action,
-  S extends State = State,
-> {
+interface TopicHandlerProps<A extends Action = Action, S extends State = any> {
   action: A;
   state: S;
   emit: Emit<A>;
 }
 
-interface TopicHandler<A extends Action = Action, S extends State = State> {
+interface TopicHandler<A extends Action = Action, S extends State = any> {
   (props: TopicHandlerProps<A, S>): void | Promise<void>;
 }
 
-interface Topic<A extends Action = Action, S extends State = State> {
+interface Topic<A extends Action = Action, S extends State = any> {
   id: string;
   inputActionTypes: string[];
   outputActionTypes: string[];
@@ -54,7 +51,7 @@ interface Topic<A extends Action = Action, S extends State = State> {
 interface Module<
   N extends string = string,
   A extends Action = Action,
-  S extends State = State,
+  S extends State = any,
   AT extends ActionTypes = ActionTypes,
   AC extends ActionCreators<A> = ActionCreators<A>,
 > {
