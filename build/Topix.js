@@ -10,6 +10,12 @@ class Topix {
         this.moduleService = new ModuleService_1.ModuleService(modules, hooks.length > 0);
         this.hookService = new HookService_1.HookService(hooks);
     }
+    getState() {
+        return this.moduleService.getState();
+    }
+    emitAction(action) {
+        this.moduleService.emitAction(action);
+    }
     start() {
         if (this.isStarted) {
             throw Error('Topix application already started');
@@ -34,12 +40,6 @@ class Topix {
         this.hookService.destroy();
         this.moduleService.destroy();
         this.isDestroyed = true;
-    }
-    getState() {
-        return this.moduleService.getState();
-    }
-    emitAction(action) {
-        this.moduleService.emitAction(action);
     }
 }
 exports.Topix = Topix;

@@ -16,6 +16,14 @@ class Topix<A extends Action = Action, S extends State = State> {
     this.hookService = new HookService(hooks);
   }
 
+  getState(): S {
+    return this.moduleService.getState();
+  }
+
+  emitAction(action: A): void {
+    this.moduleService.emitAction(action);
+  }
+
   start(): void {
     if (this.isStarted) {
       throw Error('Topix application already started');
@@ -52,14 +60,6 @@ class Topix<A extends Action = Action, S extends State = State> {
     this.hookService.destroy();
     this.moduleService.destroy();
     this.isDestroyed = true;
-  }
-
-  getState(): S {
-    return this.moduleService.getState();
-  }
-
-  emitAction(action: A): void {
-    this.moduleService.emitAction(action);
   }
 }
 
