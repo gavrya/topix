@@ -8,12 +8,14 @@ class ModuleService<
   S extends State = State,
 > extends EventEmitter {
   private state: S;
+  private readonly enableHooks: boolean;
   private modules: Module[] = [];
   private actionEmitter: EventEmitter;
 
-  constructor(modules: Module[]) {
+  constructor(modules: Module[], enableHooks: boolean) {
     super();
     this.state = {} as S;
+    this.enableHooks = enableHooks;
     this.modules.push(...modules);
     this.actionEmitter = new EventEmitter();
   }
@@ -25,7 +27,7 @@ class ModuleService<
   emitAction(action: A): void {
     setTimeout(() => {
       this.actionEmitter.emit(action.type, action);
-      this.emit(HookEvents.ActionEmitted, { action, state: this.state });
+      this.triggerHook(HookEvents.ActionEmitted, { action, state: this.state });
     }, 0);
   }
 
@@ -61,7 +63,7 @@ class ModuleService<
       registerModule(module);
     }
 
-    this.emit(HookEvents.ModulesRegistered, { modules: this.modules });
+    this.triggerHook(HookEvents.ModulesRegistered, { modules: this.modules });
   }
 
   destroy(): void {
@@ -69,6 +71,12 @@ class ModuleService<
     this.actionEmitter.removeAllListeners();
     this.modules = [];
     this.state = {} as S;
+  }
+
+  private triggerHook(eventName: string, event: any): void {
+    if (this.enableHooks) {
+      this.emit(eventName, event);
+    }
   }
 }
 

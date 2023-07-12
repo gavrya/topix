@@ -6,7 +6,7 @@ declare enum HookEvents {
 }
 declare class HookService extends EventEmitter {
     private hooks;
-    constructor(hooks?: Hook[]);
+    constructor(hooks: Hook[]);
     init(): void;
     destroy(): void;
     private notifyHooks;

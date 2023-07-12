@@ -12,7 +12,7 @@ var HookEvents;
 })(HookEvents || (HookEvents = {}));
 exports.HookEvents = HookEvents;
 class HookService extends eventemitter3_1.default {
-    constructor(hooks = []) {
+    constructor(hooks) {
         super();
         this.hooks = [];
         this.hooks.push(...hooks);

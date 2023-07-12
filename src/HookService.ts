@@ -9,7 +9,7 @@ enum HookEvents {
 class HookService extends EventEmitter {
   private hooks: Hook[] = [];
 
-  constructor(hooks: Hook[] = []) {
+  constructor(hooks: Hook[]) {
     super();
     this.hooks.push(...hooks);
   }

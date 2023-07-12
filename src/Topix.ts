@@ -5,12 +5,15 @@ import type { Action, State, TopixProps, Module } from './types';
 class Topix<A extends Action = Action, S extends State = State> {
   private isStarted: boolean = false;
   private isDestroyed: boolean = false;
-  private hookService: HookService;
   private moduleService: ModuleService;
+  private hookService: HookService;
 
   constructor({ modules, hooks = [] }: TopixProps) {
+    this.moduleService = new ModuleService<Action, State>(
+      modules,
+      hooks.length > 0,
+    );
     this.hookService = new HookService(hooks);
-    this.moduleService = new ModuleService<Action, State>(modules);
   }
 
   start(): void {
@@ -21,9 +24,6 @@ class Topix<A extends Action = Action, S extends State = State> {
     if (this.isDestroyed) {
       throw Error('Unable to start destroyed Topix application');
     }
-
-    this.hookService.init();
-    this.moduleService.init();
 
     this.moduleService.on(
       HookEvents.ModulesRegistered,
@@ -38,6 +38,8 @@ class Topix<A extends Action = Action, S extends State = State> {
       },
     );
 
+    this.hookService.init();
+    this.moduleService.init();
     this.isStarted = true;
   }
 
