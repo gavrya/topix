@@ -29,10 +29,10 @@ class HookService extends eventemitter3_1.default {
         });
     }
     destroy() {
+        this.removeAllListeners();
         for (const hook of this.hooks) {
             hook.destroy();
         }
-        this.removeAllListeners();
         this.hooks = [];
     }
     notifyHooks(notifier) {

@@ -31,6 +31,7 @@ class Topix<A extends Action = Action, S extends State = State> {
         this.hookService.emit(HookEvents.ModulesRegistered, event);
       },
     );
+
     this.moduleService.on(
       HookEvents.ActionEmitted,
       (event: { action: Action; state: State }) => {

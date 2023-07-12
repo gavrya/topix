@@ -35,11 +35,12 @@ class HookService extends EventEmitter {
   }
 
   destroy(): void {
+    this.removeAllListeners();
+
     for (const hook of this.hooks) {
       hook.destroy();
     }
 
-    this.removeAllListeners();
     this.hooks = [];
   }
 
