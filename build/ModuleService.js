@@ -8,11 +8,10 @@ const eventemitter3_1 = __importDefault(require("eventemitter3"));
 const utils_1 = require("./utils");
 const HookService_1 = require("./HookService");
 class ModuleService extends eventemitter3_1.default {
-    constructor(modules, enableHooks) {
+    constructor(modules) {
         super();
         this.modules = [];
         this.state = {};
-        this.enableHooks = enableHooks;
         this.modules.push(...modules);
         this.actionEmitter = new eventemitter3_1.default();
     }
@@ -22,7 +21,7 @@ class ModuleService extends eventemitter3_1.default {
     emitAction(action) {
         setTimeout(() => {
             this.actionEmitter.emit(action.type, action);
-            this.triggerHook(HookService_1.HookEvents.ActionEmitted, { action, state: this.state });
+            this.emit(HookService_1.HookEvents.ActionEmitted, { action, state: this.state });
         }, 0);
     }
     init() {
@@ -49,18 +48,13 @@ class ModuleService extends eventemitter3_1.default {
         for (const module of this.modules) {
             registerModule(module);
         }
-        this.triggerHook(HookService_1.HookEvents.ModulesRegistered, { modules: this.modules });
+        this.emit(HookService_1.HookEvents.ModulesRegistered, { modules: this.modules });
     }
     destroy() {
         this.removeAllListeners();
         this.actionEmitter.removeAllListeners();
         this.modules = [];
         this.state = {};
-    }
-    triggerHook(eventName, event) {
-        if (this.enableHooks) {
-            this.emit(eventName, event);
-        }
     }
 }
 exports.ModuleService = ModuleService;

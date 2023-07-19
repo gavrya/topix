@@ -7,7 +7,7 @@ class Topix {
     constructor({ modules, hooks = [] }) {
         this.isStarted = false;
         this.isDestroyed = false;
-        this.moduleService = new ModuleService_1.ModuleService(modules, hooks.length > 0);
+        this.moduleService = new ModuleService_1.ModuleService(modules);
         this.hookService = new HookService_1.HookService(hooks);
     }
     getState() {
@@ -23,12 +23,14 @@ class Topix {
         if (this.isDestroyed) {
             throw Error('Unable to start destroyed Topix application');
         }
-        this.moduleService.on(HookService_1.HookEvents.ModulesRegistered, (event) => {
-            this.hookService.emit(HookService_1.HookEvents.ModulesRegistered, event);
-        });
-        this.moduleService.on(HookService_1.HookEvents.ActionEmitted, (event) => {
-            this.hookService.emit(HookService_1.HookEvents.ActionEmitted, event);
-        });
+        if (this.hookService.hasHooks()) {
+            this.moduleService.on(HookService_1.HookEvents.ActionEmitted, (event) => {
+                this.hookService.emit(HookService_1.HookEvents.ActionEmitted, event);
+            });
+            this.moduleService.on(HookService_1.HookEvents.ModulesRegistered, (event) => {
+                this.hookService.emit(HookService_1.HookEvents.ModulesRegistered, event);
+            });
+        }
         this.hookService.init();
         this.moduleService.init();
         this.isStarted = true;

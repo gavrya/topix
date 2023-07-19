@@ -17,16 +17,19 @@ class HookService extends eventemitter3_1.default {
         this.hooks = [];
         this.hooks.push(...hooks);
     }
+    hasHooks() {
+        return this.hooks.length > 0;
+    }
     init() {
         for (const hook of this.hooks) {
             hook.init();
+            this.on(HookEvents.ActionEmitted, ({ action, state }) => {
+                hook.onActionEmitted(action, state);
+            });
+            this.on(HookEvents.ModulesRegistered, ({ modules }) => {
+                hook.onModulesRegistered(modules);
+            });
         }
-        this.on(HookEvents.ActionEmitted, ({ action, state }) => {
-            this.notifyHooks((hook) => hook.onActionEmitted(action, state));
-        });
-        this.on(HookEvents.ModulesRegistered, ({ modules }) => {
-            this.notifyHooks((hook) => hook.onModulesRegistered(modules));
-        });
     }
     destroy() {
         this.removeAllListeners();
@@ -34,11 +37,6 @@ class HookService extends eventemitter3_1.default {
             hook.destroy();
         }
         this.hooks = [];
-    }
-    notifyHooks(notifier) {
-        for (const hook of this.hooks) {
-            notifier(hook);
-        }
     }
 }
 exports.HookService = HookService;

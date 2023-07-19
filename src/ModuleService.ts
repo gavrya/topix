@@ -1,21 +1,19 @@
 import EventEmitter from 'eventemitter3';
 import { hasOwnProp } from './utils';
 import { HookEvents } from './HookService';
-import type { Module, Action, State, Topic, Emit } from './types';
+import type { Module, Action, State, Topic, Emit, HookEmitter } from './types';
 
 class ModuleService<
   A extends Action = Action,
   S extends State = State,
-> extends EventEmitter {
+> extends EventEmitter<HookEmitter> {
   private state: S;
-  private readonly enableHooks: boolean;
   private modules: Module[] = [];
   private actionEmitter: EventEmitter;
 
-  constructor(modules: Module[], enableHooks: boolean) {
+  constructor(modules: Module[]) {
     super();
     this.state = {} as S;
-    this.enableHooks = enableHooks;
     this.modules.push(...modules);
     this.actionEmitter = new EventEmitter();
   }
@@ -27,7 +25,7 @@ class ModuleService<
   emitAction(action: A): void {
     setTimeout(() => {
       this.actionEmitter.emit(action.type, action);
-      this.triggerHook(HookEvents.ActionEmitted, { action, state: this.state });
+      this.emit(HookEvents.ActionEmitted, { action, state: this.state });
     }, 0);
   }
 
@@ -63,7 +61,7 @@ class ModuleService<
       registerModule(module);
     }
 
-    this.triggerHook(HookEvents.ModulesRegistered, { modules: this.modules });
+    this.emit(HookEvents.ModulesRegistered, { modules: this.modules });
   }
 
   destroy(): void {
@@ -71,12 +69,6 @@ class ModuleService<
     this.actionEmitter.removeAllListeners();
     this.modules = [];
     this.state = {} as S;
-  }
-
-  private triggerHook(eventName: string, event: any): void {
-    if (this.enableHooks) {
-      this.emit(eventName, event);
-    }
   }
 }
 

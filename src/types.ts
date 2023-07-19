@@ -74,11 +74,16 @@ interface TopixProps {
   hooks?: Hook[];
 }
 
-type ActionSegments = {
+interface ActionSegments {
   moduleNamespace: string;
   actionCategory: string;
   actionName: string;
-};
+}
+
+interface HookEmitter {
+  actionEmitted: (event: { action: Action; state: State }) => void;
+  modulesRegistered: (event: { modules: Module[] }) => void;
+}
 
 export type {
   AnyObject,
@@ -97,4 +102,5 @@ export type {
   Hook,
   TopixProps,
   ActionSegments,
+  HookEmitter,
 };

@@ -1,12 +1,12 @@
 import EventEmitter from 'eventemitter3';
-import type { Module, Action, State, Hook } from './types';
+import type { Hook, HookEmitter } from './types';
 
 enum HookEvents {
   ActionEmitted = 'actionEmitted',
   ModulesRegistered = 'modulesRegistered',
 }
 
-class HookService extends EventEmitter {
+class HookService extends EventEmitter<HookEmitter> {
   private hooks: Hook[] = [];
 
   constructor(hooks: Hook[]) {
@@ -14,24 +14,22 @@ class HookService extends EventEmitter {
     this.hooks.push(...hooks);
   }
 
+  hasHooks() {
+    return this.hooks.length > 0;
+  }
+
   init(): void {
     for (const hook of this.hooks) {
       hook.init();
+
+      this.on(HookEvents.ActionEmitted, ({ action, state }) => {
+        hook.onActionEmitted(action, state);
+      });
+
+      this.on(HookEvents.ModulesRegistered, ({ modules }) => {
+        hook.onModulesRegistered(modules);
+      });
     }
-
-    this.on(
-      HookEvents.ActionEmitted,
-      ({ action, state }: { action: Action; state: State }) => {
-        this.notifyHooks((hook: Hook) => hook.onActionEmitted(action, state));
-      },
-    );
-
-    this.on(
-      HookEvents.ModulesRegistered,
-      ({ modules }: { modules: Module[] }) => {
-        this.notifyHooks((hook: Hook) => hook.onModulesRegistered(modules));
-      },
-    );
   }
 
   destroy(): void {
@@ -42,12 +40,6 @@ class HookService extends EventEmitter {
     }
 
     this.hooks = [];
-  }
-
-  private notifyHooks(notifier: (hook: Hook) => void): void {
-    for (const hook of this.hooks) {
-      notifier(hook);
-    }
   }
 }
 

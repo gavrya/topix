@@ -1,6 +1,6 @@
 import { HookService, HookEvents } from './HookService';
 import { ModuleService } from './ModuleService';
-import type { Action, State, TopixProps, Module } from './types';
+import type { Action, State, TopixProps } from './types';
 
 class Topix<A extends Action = Action, S extends State = State> {
   private isStarted: boolean = false;
@@ -9,10 +9,7 @@ class Topix<A extends Action = Action, S extends State = State> {
   private hookService: HookService;
 
   constructor({ modules, hooks = [] }: TopixProps) {
-    this.moduleService = new ModuleService<Action, State>(
-      modules,
-      hooks.length > 0,
-    );
+    this.moduleService = new ModuleService<Action, State>(modules);
     this.hookService = new HookService(hooks);
   }
 
@@ -33,19 +30,15 @@ class Topix<A extends Action = Action, S extends State = State> {
       throw Error('Unable to start destroyed Topix application');
     }
 
-    this.moduleService.on(
-      HookEvents.ModulesRegistered,
-      (event: { modules: Module[] }) => {
-        this.hookService.emit(HookEvents.ModulesRegistered, event);
-      },
-    );
-
-    this.moduleService.on(
-      HookEvents.ActionEmitted,
-      (event: { action: Action; state: State }) => {
+    if (this.hookService.hasHooks()) {
+      this.moduleService.on(HookEvents.ActionEmitted, (event) => {
         this.hookService.emit(HookEvents.ActionEmitted, event);
-      },
-    );
+      });
+
+      this.moduleService.on(HookEvents.ModulesRegistered, (event) => {
+        this.hookService.emit(HookEvents.ModulesRegistered, event);
+      });
+    }
 
     this.hookService.init();
     this.moduleService.init();
